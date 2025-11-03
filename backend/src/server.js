@@ -49,15 +49,30 @@ app.get("/health", (req, res) => {
 
 // make our app ready for deployment
 if (ENV.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "../frontend/dist")));
+  const distPath = path.join(__dirname, "../frontend/dist");
+  
+  // Serve static files (CSS, JS, images, fonts, etc.) with proper headers
+  app.use(express.static(distPath, {
+    maxAge: '1d',
+    etag: true,
+    lastModified: true,
+    setHeaders: (res, filePath) => {
+      // Set proper MIME types for assets
+      if (filePath.endsWith('.css')) {
+        res.setHeader('Content-Type', 'text/css');
+      } else if (filePath.endsWith('.js')) {
+        res.setHeader('Content-Type', 'application/javascript');
+      }
+    }
+  }));
 
   // Catch-all route: serve React app for any non-API routes
   app.use((req, res, next) => {
-    // Skip if it's an API route
-    if (req.path.startsWith('/api')) {
+    // Skip if it's an API route or a static asset
+    if (req.path.startsWith('/api') || req.path.includes('.')) {
       return next();
     }
-    res.sendFile(path.join(__dirname, "../frontend", "dist", "index.html"));
+    res.sendFile(path.join(distPath, "index.html"));
   });
 }
 
