@@ -1,8 +1,8 @@
 @import "tailwindcss";
-/* @plugin "daisyui" {
+@plugin "daisyui" {
   themes: all;
   exclude: properties;
-} */
+}
 
 /* Add cursor pointer to buttons by default - this is coming from tailwind docs */
 @layer base {
