@@ -37,7 +37,14 @@ app.use("/api/chat", chatRoutes);
 app.use("/api/sessions", sessionRoutes);
 
 app.get("/health", (req, res) => {
-  res.status(200).json({ msg: "api is up and running" });
+  console.log("🔍 Health check requested");
+  res.status(200).json({
+    status: "ok",
+    message: "api is up and running",
+    timestamp: new Date().toISOString(),
+    port: ENV.PORT,
+    nodeEnv: ENV.NODE_ENV
+  });
 });
 
 // make our app ready for deployment
@@ -52,9 +59,15 @@ if (ENV.NODE_ENV === "production") {
 const startServer = async () => {
   try {
     await connectDB();
-    app.listen(ENV.PORT, () => console.log("Server is running on port:", ENV.PORT));
+    // Bind to 0.0.0.0 to accept external connections in containerized/cloud environments
+    const HOST = "0.0.0.0";
+    app.listen(ENV.PORT, HOST, () => {
+      console.log(`✅ Server is running on ${HOST}:${ENV.PORT}`);
+      console.log(`📍 Health check available at http://${HOST}:${ENV.PORT}/health`);
+    });
   } catch (error) {
     console.error("💥 Error starting the server", error);
+    process.exit(1);
   }
 };
 
