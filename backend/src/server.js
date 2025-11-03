@@ -50,7 +50,7 @@ app.get("/health", (req, res) => {
 // make our app ready for deployment
 if (ENV.NODE_ENV === "production") {
   const distPath = path.join(__dirname, "../frontend/dist");
-  
+
   // Serve static files (CSS, JS, images, fonts, etc.) with proper headers
   app.use(express.static(distPath, {
     maxAge: '1d',
