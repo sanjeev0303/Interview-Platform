@@ -51,8 +51,12 @@ app.get("/health", (req, res) => {
 if (ENV.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "../frontend/dist")));
 
-  // Express 5 requires /* instead of * for catch-all routes
-  app.get("/*", (req, res) => {
+  // Catch-all route: serve React app for any non-API routes
+  app.use((req, res, next) => {
+    // Skip if it's an API route
+    if (req.path.startsWith('/api')) {
+      return next();
+    }
     res.sendFile(path.join(__dirname, "../frontend", "dist", "index.html"));
   });
 }
